@@ -1,0 +1,38 @@
+invokeurl:
+  prefix: [ invokeurl ]
+  body: 
+    - invokeurl [
+    - "\turl: ${1:url}"
+    - "\ttype: ${2|GET,POST,PUT,DELETE|}"
+    - "\tparameters: ${3:parameters}"
+    - "];$0"
+  description: invoke url calls a url
+
+sendemail:
+  prefix: [ email, sendemail]
+  body: 
+    - sendemail [
+    - "\tfrom: ${1:fromEmail}"
+    - "\tto: ${2:toEmail}"
+    - "\tsubject: ${3:subject}"
+    - "\tmessage: ${4:message}"
+    - "];$0"
+  description: sends an email
+
+sendsms:
+  prefix: [ sms, sendsms ]
+  body:
+    - sendsms [
+    - "\tto: ${1:phoneNumber}"
+    - "\tmessage: ${2:message}"
+    - "];$0"
+  description: send an sms
+
+pushNotification:
+  prefix: [ notification, pushNotification]
+  body:
+    - pushNotification [
+    - "\tto: ${1:email}"
+    - "\tmessage: ${2:message}"
+    - "];$0"
+  description: send an push notification

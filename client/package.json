@@ -1,0 +1,22 @@
+{
+	"name": "deluge-client",
+	"version": "1.0.0",
+	"description": "Deluge lang client for vscode",
+	"author": "",
+	"license": "ISC",
+	"publisher": "guru",
+	"engines": {
+		"vscode": "^1.26.0"
+	},
+	"scripts": {
+		"update-vscode": "vscode-install",
+		"postinstall": "vscode-install"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^4.1.4"
+	},
+	"devDependencies": {
+		"@types/node": "^12.6.8",
+		"vscode": "^1.1.34"
+	}
+}

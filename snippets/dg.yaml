@@ -1,0 +1,44 @@
+
+For Loop: 
+  prefix: [ for ]
+  body: 
+    - for each ${2:item} in ${1:list} {
+    - "\t$0"
+    - "}"
+  description: For loop
+
+For index Loop: 
+  prefix: [ forindex ]
+  body: 
+    - for each index ${2:indexName} in ${1:list} {
+    - "\t$0"
+    - "}"
+  description: For loop with indexes
+
+If: 
+  prefix: [ if ]
+  body:
+    - if(${1:test}) {
+    - "\t$0"
+    - "}"
+  description: If statement
+
+If else:
+  prefix: [ ifelse ]
+  body:
+    - if(${1:test}) {
+    - "\t$0"
+    - "} else {"
+    - "\t"
+    - "}"
+  description: If else
+
+If conditional:
+  prefix: [ ifcon ]
+  body: [ "if(${1:test}, ${2:expression1}, ${3:expression2})$0" ]
+  description: if test is true, returns expression1 otherwise returns expression2
+
+If Null:
+  prefix: [ ifnull ]
+  body: [ "ifnull(${1:expression1}, ${2:expression2})$0"]
+  description: if expression1 is true, returns expression1 otherwise returns expression2

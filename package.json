@@ -1,0 +1,104 @@
+{
+	"name": "delugelang",
+	"displayName": "Deluge Lang support",
+	"description": "An Zoho DSL",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.26.0"
+	},
+	"preview": true,
+	"publisher": "guru",
+	"activationEvents": [
+		"onLanguage:dg"
+	],
+	"main": "./client/out/extension",
+	"categories": [
+		"Programming Languages"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "delugelang.showView",
+				"title": "Shows the message part as rendered in client",
+				"category": "Deluge",
+				"enablement": "editorLangId == dg"
+			},
+			{
+				"command": "delugelang.restartLangServer",
+				"title": "Restarts the Deluge Language server",
+				"category": "Deluge",
+				"enablement": "editorLangId == dg"
+			}
+		],
+		"languages": [
+			{
+				"id": "dg",
+				"extensions": [
+					".dg"
+				],
+				"aliases": [
+					"deluge",
+					"dg"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "dg",
+				"scopeName": "source.dg",
+				"path": "./syntaxes/deluge.tmLanguage.json"
+			}
+		],
+		"snippets": [
+			{
+				"language": "dg",
+				"path": "./snippets/snippets.json"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Deluge configuration",
+			"properties": {
+				"DelugeLanguageServer.maxNumberOfProblems": {
+					"scope": "resource",
+					"type": "number",
+					"default": 100,
+					"description": "Controls the maximum number of problems produced by the server."
+				},
+				"DelugeLanguageServer.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the deluge language server."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"postinstall": "cd client && npm install && cd ..",
+		"test": "sh ./scripts/e2e.sh",
+		"yaml-merge": "cd snippets && json-merger -p -o snippets.json .import.yaml",
+		"syntax-watch": "yaml2json -p -s -r -w .\\syntaxes\\deluge.tmLanguage.yaml"
+	},
+	"devDependencies": {
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^12.7.2",
+		"json-merger": "^1.1.1",
+		"tslint": "^5.18.0",
+		"typescript": "^3.5.3",
+		"yamljs": "^0.3.0"
+	},
+	"dependencies": {
+		"@types/request-promise-native": "^1.0.16",
+		"request-promise-native": "^1.0.7"
+	}
+}

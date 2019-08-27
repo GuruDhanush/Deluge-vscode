@@ -1,0 +1,598 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "dg",
+  "patterns": [
+    {
+      "include": "#signature"
+    },
+    {
+      "include": "#statement"
+    },
+    {
+      "include": "#expression"
+    },
+    {
+      "include": "#semicolon"
+    },
+    {
+      "include": "#comment"
+    }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "include": "#operators"
+        },
+        {
+          "name": "keyword.control.flow.dg",
+          "match": "\\breturn\\b"
+        },
+        {
+          "name": "keyword.control.loop.dg",
+          "match": "\\b(break|continue|for)\\b"
+        },
+        {
+          "name": "keyword.control.conditional.dg",
+          "match": "\\b(ifnull|else|if)\\b"
+        },
+        {
+          "name": "keyword.other.debug.dg",
+          "match": "\\binfo\\b"
+        },
+        {
+          "name": "keyword.other.dg",
+          "match": "\\b(each|index|in)\\b"
+        },
+        {
+          "name": "keyword.operator.void.dg",
+          "match": "\\bvoid\\b"
+        }
+      ]
+    },
+    "info-line": {
+      "match": "\\b(info)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.other.debug.dg"
+        }
+      }
+    },
+    "return-line": {
+      "begin": "\\b(return)\\b",
+      "end": "(\\;)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.flow.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "entity.other.semicolon"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "variable-assignment": {
+      "begin": "([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s|\\t)*(=)(?:\\s|\\t)*",
+      "end": "(\\;)",
+      "name": "meta.expr.dg",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.other.readwrite.dg"
+        },
+        "2": {
+          "name": "variable.assignment.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "entity.other.semicolon"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "list-datatype": {
+      "begin": "((?i)(list)(:)(string|int|bool|date|float)(\\())",
+      "end": "(\\))",
+      "captures": {
+        "2": {
+          "name": "entity.name.function.dg"
+        },
+        "3": {
+          "name": "keyword.operator.type.annotation.dg"
+        },
+        "4": {
+          "name": "entity.name.type.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "list": {
+      "name": "meta.array.literal.dg",
+      "begin": "(\\[)",
+      "end": "(\\])",
+      "captures": {
+        "1": {
+          "name": "meta.brace.square.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "expression": {
+      "patterns": [
+        {
+          "include": "#operators"
+        },
+        {
+          "include": "#zohosystemvars"
+        },
+        {
+          "include": "#invoke-function"
+        },
+        {
+          "include": "#functions"
+        },
+        {
+          "include": "#type"
+        },
+        {
+          "include": "#list"
+        },
+        {
+          "include": "#list-datatype"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#variable-any"
+        }
+      ]
+    },
+    "statement": {
+      "patterns": [
+        {
+          "include": "#info-line"
+        },
+        {
+          "include": "#return-line"
+        },
+        {
+          "include": "#if-statement"
+        },
+        {
+          "include": "#for-statememt"
+        },
+        {
+          "include": "#variable-assignment"
+        },
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "signature": {
+      "begin": "\\b(void|String|List|Map|Boolean|Bigint|Decimal)\\b(?:\\s|\\t)*([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s|\\t)*(\\()",
+      "end": "(\\))",
+      "captures": {
+        "1": {
+          "name": "support.type.primitive.dg"
+        },
+        "2": {
+          "name": "entity.name.function.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#datatype-name"
+        }
+      ]
+    },
+    "datatype-name": {
+      "match": "(?:\\s|\\t)*\\b(any|String|List|Map|Boolean|Bigint|Decimal)\\b(?:\\s|\\t)*([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s|\\t)*(,?)",
+      "captures": {
+        "1": {
+          "name": "support.type.primitive.dg"
+        },
+        "2": {
+          "name": "variable.parameter.dg"
+        }
+      }
+    },
+    "if-statement": {
+      "begin": "(ifnull|if)(?:\\s|\\t)*(\\()",
+      "end": "(\\))",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.conditional.dg"
+        },
+        "2": {
+          "name": "meta.brace.round.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "meta.brace.round.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        },
+        {
+          "include": "#types"
+        }
+      ]
+    },
+    "for-statement": {
+      "match": "(for)(?:\\s|\\t)*(each)(?:\\s|\\t)*(index?)(?:\\s|\\t)*([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s|\\t)*(in)(?:\\s|\\t)*([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.flow.dg"
+        },
+        "2": {
+          "name": "keyword.other.dg"
+        },
+        "3": {
+          "name": "keyword.other.dg"
+        },
+        "4": {
+          "name": "variable.other"
+        },
+        "5": {
+          "name": "keyword.other.dg"
+        },
+        "6": {
+          "name": "variable.other"
+        }
+      }
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arithmetic.dg",
+          "match": "\\+|\\-|\\*|%"
+        },
+        {
+          "name": "keyword.operator.logical.dg",
+          "match": "!|&&|\\|\\|"
+        },
+        {
+          "name": "keyword.operator.relation.dg",
+          "match": "<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.equality.dg",
+          "match": "==|!="
+        }
+      ]
+    },
+    "semicolon": {
+      "patterns": [
+        {
+          "name": "entity.other.semicolon",
+          "match": "\\;$"
+        }
+      ]
+    },
+    "comment": {
+      "patterns": [
+        {
+          "include": "#comment-line"
+        },
+        {
+          "include": "#comment-block"
+        },
+        {
+          "include": "#comment-block-error"
+        }
+      ]
+    },
+    "comment-line": {
+      "name": "comment.line.double-slash.dg",
+      "begin": "//",
+      "end": "$",
+      "patterns": [
+        {
+          "name": "invalid.illegal.dg",
+          "match": "\\\\n"
+        }
+      ]
+    },
+    "comment-block": {
+      "name": "comment.block",
+      "begin": "/\\*",
+      "end": "\\*/"
+    },
+    "comment-block-error": {
+      "name": "invalid.illegal.dg",
+      "match": "\\*\\/"
+    },
+    "zohosystemvars": {
+      "patterns": [
+        {
+          "match": "(zoho)\\.(currentdate|currenttime|loginuser|loginuserid|adminuser|adminuserid|appname|ipaddress|appuri)",
+          "captures": {
+            "1": {
+              "name": "constant.language.zoho"
+            },
+            "2": {
+              "name": "support.constant"
+            }
+          }
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "include": "#object-function-call"
+        },
+        {
+          "include": "#object-property"
+        },
+        {
+          "include": "#function-call"
+        },
+        {
+          "include": "#property-call"
+        }
+      ]
+    },
+    "object-property": {
+      "match": "([a-zA-Z_][a-zA-Z0-9_]*)(\\.)([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": {
+          "name": "variable.other.object.dg"
+        },
+        "2": {
+          "name": "punctuation.accessor.dg"
+        },
+        "3": {
+          "name": "variable.other.object.property.dg"
+        }
+      }
+    },
+    "object-function-call": {
+      "begin": "([a-zA-Z_][a-zA-Z0-9_]*)(\\.)([a-zA-Z_][a-zA-Z0-9_]*)(\\()",
+      "end": "(\\))",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.other.dg"
+        },
+        "2": {
+          "name": "punctuation.accessor.dg"
+        },
+        "3": {
+          "name": "entity.name.function.dg"
+        },
+        "4": {
+          "name": "meta.brace.round.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "meta.brace.round.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "property-call": {
+      "match": "(\\.)([a-zA-Z_][a-zA-Z0-9_]*)",
+      "captures": {
+        "1": {
+          "name": "punctuation.accessor.dg"
+        },
+        "2": {
+          "name": "variable.other.object.property.dg"
+        }
+      }
+    },
+    "function-call": {
+      "begin": "(\\.?)([a-zA-Z_][a-zA-Z0-9_]*)(\\()",
+      "end": "(\\))",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.accessor.dg"
+        },
+        "2": {
+          "name": "entity.name.function.dg"
+        },
+        "3": {
+          "name": "meta.brace.round.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "meta.brace.round.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "type": {
+      "patterns": [
+        {
+          "include": "#null"
+        },
+        {
+          "include": "#string"
+        },
+        {
+          "include": "#decimal-literal"
+        },
+        {
+          "include": "#boolean-literal"
+        }
+      ]
+    },
+    "null": {
+      "match": "\\bnull\\b",
+      "name": "constant.language.null.dg"
+    },
+    "string": {
+      "patterns": [
+        {
+          "include": "#string-html"
+        },
+        {
+          "include": "#string-singlequote"
+        },
+        {
+          "include": "#string-doublequote"
+        }
+      ]
+    },
+    "string-singlequote": {
+      "name": "string.quoted.single.dg",
+      "begin": "'",
+      "end": "'",
+      "patterns": [
+        {
+          "include": "#string-escape"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.begin.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.end.dg"
+        }
+      }
+    },
+    "string-doublequote": {
+      "name": "string.quoted.double.dg",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "include": "#string-escape"
+        }
+      ],
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.begin.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.end.dg"
+        }
+      }
+    },
+    "string-html": {
+      "name": "string.html.dg",
+      "begin": "\"`",
+      "end": "\"",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.begin.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.string.end.dg"
+        }
+      }
+    },
+    "string-escape": {
+      "name": "constant.character.escape.dg",
+      "match": "\\\\."
+    },
+    "invoke-function": {
+      "begin": "([a-zA-Z_][a-zA-Z0-9_]*)(?:\\r|\\n|\\t|\\s)*(\\[)",
+      "end": "(?:\\s|\\t|\\n|\\r)*(\\])",
+      "beginCaptures": {
+        "1": {
+          "name": "support.function.dg"
+        },
+        "2": {
+          "name": "meta.brace.square.start.dg"
+        }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "meta.brace.square.end.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#invoke-function-property"
+        }
+      ]
+    },
+    "invoke-function-property": {
+      "name": "meta.invokefunction.property",
+      "begin": "([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s|\\t)*(\\:)",
+      "end": "(\\n|\\r)+",
+      "beginCaptures": {
+        "1": {
+          "name": "support.type.property-name.dg"
+        },
+        "2": {
+          "name": "punctuation.separator.dictionary.key-value.dg"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    "decimal-literal": {
+      "name": "constant.numeric.decimal.dg",
+      "match": "(?x: \\b[0-9][0-9]*(\\.)[0-9][0-9]*\\b|\\b[0-9][0-9]*(\\.?)\\b|\\b(\\.)[0-9][0-9]*\\b)",
+      "captures": {
+        "1": {
+          "name": "meta.delimiter.decimal.period.dg"
+        },
+        "2": {
+          "name": "meta.delimiter.decimal.period.dg"
+        },
+        "3": {
+          "name": "meta.delimiter.decimal.period.dg"
+        }
+      }
+    },
+    "boolean-literal": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.true.dg",
+          "match": "true"
+        },
+        {
+          "name": "constant.language.boolean.false.dg",
+          "match": "false"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.dg"
+}

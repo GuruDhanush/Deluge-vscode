@@ -1,0 +1,14 @@
+# by vscode
+.vscode
+
+package-lock.json
+
+
+# node modules
+node_modules/**
+
+# Client
+client/node_modules/**
+client/out/**
+
+.vscodeignore
