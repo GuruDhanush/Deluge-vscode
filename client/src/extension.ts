@@ -1,12 +1,10 @@
 import { workspace, ExtensionContext, StatusBarItem, window, StatusBarAlignment, commands, ViewColumn, WebviewPanel, ProgressLocation } from 'vscode';
 
-import * as m from 'vscode';
 import {
 	LanguageClient,
 	LanguageClientOptions,
 	ServerOptions,
-	Executable,
-	CreateFile
+	Executable
 } from 'vscode-languageclient';
 
 
@@ -14,12 +12,14 @@ import { promises as fs } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as console from 'console';
-import * as https from 'https';
-import * as process from 'process';
 import * as req from 'request-promise-native';
 
 let client: LanguageClient;
 let parserStatus: StatusBarItem;
+let runTimeFileName : string;
+let appFileName : string;
+let userPath : string;
+const folderName: string = 'deluge-vscode';
 
 
 async function DownloadFile(filePath: string, url: string) {
@@ -43,11 +43,31 @@ async function DownloadFile(filePath: string, url: string) {
 
 async function DependecyCheck(context: ExtensionContext) {
 
+	var osString : string;
 
-	var basePath = path.join(os.homedir(), 'deluge-vscode');
-	var baseUrl = "https://github.com/GuruDhanush/Deluge-Language-Parser/releases/download/v0.01-alpha/";
-	var runTimeFileName = 'dartaotruntime.exe';
-	var appFileName = 'main.dart.aot';
+	if(os.platform() === 'win32')
+		osString = 'win';
+	else if(os.platform() === 'darwin')
+		osString = 'mac';
+	else //may be all variants, can possibly go wrong on unsupported platforms 
+		osString = 'linux';
+
+	var basePath: string;
+	userPath = workspace.getConfiguration().get('deluge.homedir');
+	if(!userPath && userPath.length != 0) {
+		basePath = path.join(userPath, folderName);
+	}
+	else {
+		basePath = path.join(os.homedir(), folderName);
+	}
+	userPath = basePath;
+
+	var baseUrl = "https://github.com/GuruDhanush/Deluge-Language-Parser/releases/download/v0.03-alpha/";
+	runTimeFileName = 'dartaotruntime-' + osString;
+	appFileName = 'parser-' + osString + '.aot';
+	var docFileName = 'docs.json';
+
+	if(osString === 'win') runTimeFileName += '.exe';
 	
 	try {
 		await fs.readdir(basePath);
@@ -78,7 +98,19 @@ async function DependecyCheck(context: ExtensionContext) {
 		}
 	}
 
-	if(!(isRunTimeAvailable && isAppAvailable)) {
+	var docPath = path.join(basePath, docFileName);
+	var isDocAvailable = true;
+
+	try {
+		await fs.stat(docPath);
+	} catch (error) {
+		if(error.code === "ENOENT") {
+			isDocAvailable = false;
+		}
+	}
+
+
+	if(!(isRunTimeAvailable && isAppAvailable && isDocAvailable)) {
 		window.withProgress(
 			{
 				title: 'Downloading',
@@ -95,6 +127,11 @@ async function DependecyCheck(context: ExtensionContext) {
 				if(!isAppAvailable) {
 					progress.report({message: 'parser'});
 					await DownloadFile(appPath, baseUrl + appFileName);
+				}
+
+				if(!isDocAvailable) {
+					progress.report({message: 'docs'});
+					await DownloadFile(docPath, baseUrl + docFileName);
 				}
 
 				progress.report({message: 'Complete ✔'});
@@ -174,8 +211,8 @@ function clientInit(context: ExtensionContext, exec : Executable) {
 	);
 	
 	let executable: Executable = exec != null ?  exec : {
-		command: path.join(os.homedir(), 'deluge-vscode', 'dartaotruntime.exe'),
-		args: [path.join(os.homedir(), 'deluge-vscode', 'main.dart.aot')]
+		command: path.join(userPath, runTimeFileName),
+		args: [path.join(userPath, appFileName)]
 	};
 
 	let serverOptions: ServerOptions = {
@@ -216,16 +253,18 @@ function clientInit(context: ExtensionContext, exec : Executable) {
 
 	});
 
+	client.start();
+
 
 }
 
 
 
 export  async function activate(context: ExtensionContext) {
-	//await DependecyCheck(context);
-	let ex : Executable = { command: "C:\\Users\\Guru\\AppData\\Roaming\\Pub\\Cache\\bin\\DelugeDartParser.bat" };
-	clientInit(context, ex);
-	client.start();
+	await DependecyCheck(context);
+	//let ex : Executable = { command: "C:\\Users\\Guru\\AppData\\Roaming\\Pub\\Cache\\bin\\DelugeDartParser.bat" };
+	//clientInit(context, ex);
+	//client.start();
 }
 
 

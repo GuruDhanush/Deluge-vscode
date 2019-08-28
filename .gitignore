@@ -12,3 +12,6 @@ client/node_modules/**
 client/out/**
 
 .vscodeignore
+
+/*.vsix
+dist/**

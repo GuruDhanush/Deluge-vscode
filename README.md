@@ -1,65 +1,71 @@
-# deluge README
+# Deluge-vscode
 
-This is the README for your extension "deluge". After writing up a brief description, we recommend including the following sections.
+An vscode language client for the [deluge lang](https://www.zoho.com/creator/deluge.html). It interfaces with the [Deluge lang server](https://github.com/GuruDhanush/Deluge-Language-Parser). 
+
+|This strictly runs deluge compatible with cliq only. |
+| --- |
+
+
+## Motivation
+
+One of the problems that I found during my time as intern in Zoho Cliq was the lack of ability to write code locally from an editor. I set out to solve the problem as I was free for past few months and this might also help in my job search. The first step is to write a parser to validate code and then provide language smarts. The [Deluge lang server](https://github.com/GuruDhanush/Deluge-Language-Parser) provides most of the features.
+
+> Tip: Install the extension, select the language as dg in the stauts-bar and you are good to go
+
+
+
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Syntax highlighting
 
-For example if there is an image subfolder under your extension project workspace:
+![Syntax highlighting](./media/syntax-highlighting.jpg)
 
-\!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Snippets
 
-## Requirements
+![Snippets](./media/snippets.gif)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+### Hover docs
+
+![hover](./media/hover.jpg)
+
+Docs for hover are stored in docs.yaml file. At the moment, hover only works for function calls.
+
+### Symbols
+
+![symbols](./media/symbols.jpg)
+
+Shows all the variables created in the document
+
+### Codelens
+
+![codelens](./media/code-lens.gif)
+
+The message property of some methods can hold html content. An rendered form of html after substituting varaibles as {Variables} is shown in web-view
+
+### Diagnostics
+
+Errors in the code will be shown with red swiggly's. At the moment, type of error is not specified. Once the lang server implements incremental compilation, this will be updated. 
+
+![codelens](./media/line-error.jpg)
+
+Lang server doesnot detect errors in if\for statement test lines. 
+
+> The state of the parser is shown in bottom left
+
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+* `deluge.homedir`: Homedir for parser and docs
+* `deluge.trace.server`: set to `verbose` to see the messages between client and server
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+* DateTime is implemented as due to inconsistency in the docs and implementation. i.e. whether to take `'sometext'` as string or validate as datetime.
 
-## Release Notes
 
-Users appreciate release notes as you update your extension.
 
-### 1.0.0
 
-Initial release of ...
 
-### 1.0.1
 
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
