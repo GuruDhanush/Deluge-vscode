@@ -134,6 +134,8 @@ async function DependecyCheck(context: ExtensionContext) {
 					await DownloadFile(docPath, baseUrl + docFileName);
 				}
 
+				if(osString !== 'win') await fs.chmod(runTimePath, '+x');
+				
 				progress.report({message: 'Complete ✔'});
 				clientInit(context, null);
 				return Promise.resolve();
@@ -227,7 +229,7 @@ function clientInit(context: ExtensionContext, exec : Executable) {
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
 		}
 	};
-
+	
 	client = new LanguageClient(
 		'DelugeLanguageServer',
 		'Deluge Language Server',

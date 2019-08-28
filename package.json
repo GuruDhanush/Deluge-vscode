@@ -8,14 +8,27 @@
 		"email": "gurudhanush@outlook.com"
 	},
 	"galleryBanner": {
-		"color": "#E8912B",
+		"color": "#278ee8",
 		"theme": "dark"
 	},
+	"icon": "media/icon.png",
 	"engines": {
 		"vscode": "^1.26.0"
 	},
 	"preview": true,
 	"publisher": "gdp",
+	"badges": [
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/version-short/gdp.delugelang.svg",
+			"description": "Market place version",
+			"href": "https://marketplace.visualstudio.com/items?itemName=gdp.delugelang"
+		},
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/installs/gdp.delugelang.svg",
+			"description": "Installs",
+			"href": "https://marketplace.visualstudio.com/items?itemName=gdp.delugelang"
+		}
+	],
 	"activationEvents": [
 		"onLanguage:dg"
 	],
