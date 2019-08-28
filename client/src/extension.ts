@@ -62,7 +62,7 @@ async function DependecyCheck(context: ExtensionContext) {
 	}
 	userPath = basePath;
 
-	var baseUrl = "https://github.com/GuruDhanush/Deluge-Language-Parser/releases/download/v0.03-alpha/";
+	var baseUrl = "https://github.com/GuruDhanush/Deluge-Language-Parser/releases/download/v0.04-alpha/";
 	runTimeFileName = 'dartaotruntime-' + osString;
 	appFileName = 'parser-' + osString + '.aot';
 	var docFileName = 'docs.json';
@@ -135,7 +135,7 @@ async function DependecyCheck(context: ExtensionContext) {
 				}
 
 				if(osString !== 'win') await fs.chmod(runTimePath, '+x');
-				
+
 				progress.report({message: 'Complete ✔'});
 				clientInit(context, null);
 				return Promise.resolve();
