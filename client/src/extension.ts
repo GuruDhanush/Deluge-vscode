@@ -8,7 +8,7 @@ import {
 } from 'vscode-languageclient';
 
 
-import { promises as fs } from 'fs';
+import { promises as fs, chmodSync } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as console from 'console';
@@ -122,6 +122,12 @@ async function DependecyCheck(context: ExtensionContext) {
 				if(!isRunTimeAvailable) {
 					progress.report({message: 'parser runtime'});
 					await DownloadFile(runTimePath, baseUrl + runTimeFileName);
+	
+					if(osString !== 'win') { 
+						chmodSync(runTimePath, 0o777);
+						console.log('set exec');
+					}
+				
 				} 
 
 				if(!isAppAvailable) {
@@ -134,7 +140,6 @@ async function DependecyCheck(context: ExtensionContext) {
 					await DownloadFile(docPath, baseUrl + docFileName);
 				}
 
-				if(osString !== 'win') await fs.chmod(runTimePath, '+x');
 
 				progress.report({message: 'Complete ✔'});
 				clientInit(context, null);
