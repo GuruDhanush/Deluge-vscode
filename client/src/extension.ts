@@ -1,4 +1,4 @@
-import { workspace, ExtensionContext, StatusBarItem, window, StatusBarAlignment, commands, ViewColumn, WebviewPanel, ProgressLocation } from 'vscode';
+import { extensions, workspace, ExtensionContext, StatusBarItem, window, StatusBarAlignment, commands, ViewColumn, WebviewPanel } from 'vscode';
 
 import {
 	LanguageClient,
@@ -7,177 +7,37 @@ import {
 	Executable
 } from 'vscode-languageclient';
 
+import { DependencyCheck } from './update';
+import * as util from './util';
 
-import { promises as fs, chmodSync } from 'fs';
-import * as os from 'os';
 import * as path from 'path';
-import * as console from 'console';
-import * as req from 'request-promise-native';
+import TelemetryReporter from 'vscode-extension-telemetry';
 
 let client: LanguageClient;
 let parserStatus: StatusBarItem;
-let runTimeFileName : string;
-let appFileName : string;
-let userPath : string;
-const folderName: string = 'deluge-vscode';
+let reporter: TelemetryReporter;
 
 
-async function DownloadFile(filePath: string, url: string) {
-
-	var options: req.RequestPromiseOptions = {
-		followAllRedirects: true,
-		gzip: true,
-		strictSSL: true,
-		encoding: null,
-	};
-
-	var data;
-	try {
-		data = await req.get(url, options);
-		await  fs.writeFile(filePath, data);
-	} catch (error) {
-		console.log(error);
-	}
-}
-
-
-async function DependecyCheck(context: ExtensionContext) {
-
-	var osString : string;
-
-	if(os.platform() === 'win32')
-		osString = 'win';
-	else if(os.platform() === 'darwin')
-		osString = 'mac';
-	else //may be all variants, can possibly go wrong on unsupported platforms 
-		osString = 'linux';
-
-	var basePath: string;
-	userPath = workspace.getConfiguration().get('deluge.homedir');
-	if(!userPath && userPath.length != 0) {
-		basePath = path.join(userPath, folderName);
-	}
-	else {
-		basePath = path.join(os.homedir(), folderName);
-	}
-	userPath = basePath;
-
-	var baseUrl = "https://github.com/GuruDhanush/Deluge-Language-Parser/releases/download/v0.04-alpha/";
-	runTimeFileName = 'dartaotruntime-' + osString;
-	appFileName = 'parser-' + osString + '.aot';
-	var docFileName = 'docs.json';
-
-	if(osString === 'win') runTimeFileName += '.exe';
-	
-	try {
-		await fs.readdir(basePath);
-	} catch (error) {
-		if(error.code === "ENOENT")
-			await fs.mkdir(basePath);
-	}
-
-	var runTimePath = path.join(basePath, runTimeFileName);
-	var isRunTimeAvailable = true;
-
-	try {
-		await fs.stat(runTimePath);
-	} catch (error) {
-		if(error.code === "ENOENT") {
-			isRunTimeAvailable = false;
-		}
-	}
-
-	var appPath = path.join(basePath, appFileName);
-	var isAppAvailable = true;
-
-	try {
-		await fs.stat(appPath);
-	} catch (error) {
-		if(error.code === "ENOENT") {
-			isAppAvailable = false;
-		}
-	}
-
-	var docPath = path.join(basePath, docFileName);
-	var isDocAvailable = true;
-
-	try {
-		await fs.stat(docPath);
-	} catch (error) {
-		if(error.code === "ENOENT") {
-			isDocAvailable = false;
-		}
-	}
-
-
-	if(!(isRunTimeAvailable && isAppAvailable && isDocAvailable)) {
-		window.withProgress(
-			{
-				title: 'Downloading',
-				location: ProgressLocation.Notification,
-				cancellable: false
-			},
-			async (progress, token) => {
-
-				if(!isRunTimeAvailable) {
-					progress.report({message: 'parser runtime'});
-					await DownloadFile(runTimePath, baseUrl + runTimeFileName);
-	
-					if(osString !== 'win') { 
-						chmodSync(runTimePath, 0o777);
-						console.log('set exec');
-					}
-				
-				} 
-
-				if(!isAppAvailable) {
-					progress.report({message: 'parser'});
-					await DownloadFile(appPath, baseUrl + appFileName);
-				}
-
-				if(!isDocAvailable) {
-					progress.report({message: 'docs'});
-					await DownloadFile(docPath, baseUrl + docFileName);
-				}
-
-
-				progress.report({message: 'Complete ✔'});
-				clientInit(context, null);
-				return Promise.resolve();
-			}
-		);
-	}
-	else {
-		clientInit(context, null);
-	} 
-
-}
-
-
-function clientInit(context: ExtensionContext, exec : Executable) {
-
+function clientInit(context: ExtensionContext, exec: Executable) {
 
 
 	const restartServerCommandId = 'delugelang.restartLangServer';
 
 	context.subscriptions.push(
-		commands.registerCommand(restartServerCommandId, async (param)  => {
+		commands.registerCommand(restartServerCommandId, async (param) => {
 
-			var status = await window.showQuickPick([ 'restart', 'continue']);
-			if(status == 'restart') {
-				if(!client) {
-					var errorOpt = await  window.showErrorMessage('Lang Server was never started!!', 'Ok', 'Start Server');
-					if(errorOpt && errorOpt === 'Start Server') {
-						DependecyCheck(context);
-					} 
+			var status = await window.showQuickPick(['restart', 'continue']);
+			if (status == 'restart') {
+				if (!client) {
+					var errorOpt = await window.showErrorMessage('Lang Server was never started!!', 'Ok', 'Start Server');
+					if (errorOpt && errorOpt === 'Start Server') {
+						DependencyCheck();
+					}
 				}
 
 				await client.sendRequest('shutdown', ['shutdown']);
 				await client.sendRequest('exit', ['exit']);
 				//await client.stop();
-				//await client.start();	
-				//await client.start();
-				//await window.showInformationMessage('Lang Server restarted successfully', 'Ok');
 			}
 
 		})
@@ -216,10 +76,10 @@ function clientInit(context: ExtensionContext, exec : Executable) {
 			webViewPanel.webview.html = WebViewShell(param);
 		})
 	);
-	
-	let executable: Executable = exec != null ?  exec : {
-		command: path.join(userPath, runTimeFileName),
-		args: [path.join(userPath, appFileName)]
+
+	let executable: Executable = exec != null ? exec : {
+		command: path.join(util.getHomeDir(), util.getServerVersion(), util.getRunTimeName()),
+		args: [path.join(util.getHomeDir(), util.getServerVersion(), util.getParserName()),]
 	};
 
 	let serverOptions: ServerOptions = {
@@ -228,13 +88,13 @@ function clientInit(context: ExtensionContext, exec : Executable) {
 	};
 
 	let clientOptions: LanguageClientOptions = {
-		documentSelector: [{ scheme: 'file', language: 'dg' }, { scheme: 'untitled', language: 'dg'}],
+		documentSelector: [{ scheme: 'file', language: 'dg' }, { scheme: 'untitled', language: 'dg' }],
 		synchronize: {
 			// Notify the server about file changes to '.clientrc files contained in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
 		}
 	};
-	
+
 	client = new LanguageClient(
 		'DelugeLanguageServer',
 		'Deluge Language Server',
@@ -242,11 +102,11 @@ function clientInit(context: ExtensionContext, exec : Executable) {
 		clientOptions
 	);
 
-	
+
 
 
 	client.onReady().then(() => {
-		parserStatus = window.createStatusBarItem(StatusBarAlignment.Left, 1, );
+		parserStatus = window.createStatusBarItem(StatusBarAlignment.Left, 1);
 		parserStatus.tooltip = 'Shows the Deluge parser status';
 		parserStatus.text = "$(unverified)";
 		parserStatus.command = restartServerCommandId;
@@ -265,13 +125,25 @@ function clientInit(context: ExtensionContext, exec : Executable) {
 
 }
 
+function telemetryInit(context: ExtensionContext) {
+	const extensionId = "deluge";
+	const extensionVersion = extensions.getExtension('gdp.delugelang').packageJSON.version;
+	//no other way than to keep it open. 
+	const teleKey = "ae8732e6-acdb-44eb-96e1-ae10108167a8";
+
+	reporter = new TelemetryReporter(extensionId, extensionVersion, teleKey);
+	context.subscriptions.push(reporter);
+}
 
 
-export  async function activate(context: ExtensionContext) {
-	await DependecyCheck(context);
+
+export async function activate(context: ExtensionContext) {
+
+	telemetryInit(context);
+	await DependencyCheck();
+	reporter.sendTelemetryEvent('Use Extension', { 'time': Date.UTC.toString() } );
 	//let ex : Executable = { command: "C:\\Users\\Guru\\AppData\\Roaming\\Pub\\Cache\\bin\\DelugeDartParser.bat" };
-	//clientInit(context, ex);
-	//client.start();
+	clientInit(context, null);
 }
 
 
