@@ -2,7 +2,7 @@
 	"name": "delugelang",
 	"displayName": "Deluge",
 	"description": "Deluge language support for Visual Studio Code",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"author": {
 		"name": "Guru Dhanush",
 		"email": "gurudhanush@outlook.com"
