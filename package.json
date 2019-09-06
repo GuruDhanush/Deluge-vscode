@@ -101,22 +101,6 @@
 					],
 					"default": "off",
 					"description": "Traces the communication between VS Code and the deluge language server."
-				},
-				"deluge.homedir": {
-					"scope": "machine",
-					"type": [
-						"string",
-						"null"
-					],
-					"description": "The location on which the deluge lang server is stored",
-					"default": null
-				},
-				"deluge.server.version": {
-					"scope": "machine",
-					"type": "string",
-					"description": "The lang server version to be used in the extension",
-					"default": "v0.03-alpha",
-					"readOnly": true
 				}
 			}
 		}
