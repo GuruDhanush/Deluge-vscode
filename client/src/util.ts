@@ -1,10 +1,9 @@
 
 import { platform as nodePlatform, homedir } from 'os';
-import { workspace } from 'vscode';
+import {  ExtensionContext } from 'vscode';
 import * as path from 'path';
 
 
-const defaultFolderName = 'deluge-vscode';
 
 export enum Platform {
 	Windows = "win",
@@ -22,21 +21,21 @@ export function getPlatform(): Platform {
 }
 
 
-export function getHomeDir() : string {
-
-	const home = workspace.getConfiguration().get<string | null>('deluge.homedir');
-	return home ||  path.join(homedir(), defaultFolderName);
+export function getHomeDir(context: ExtensionContext) : string {
+	//@ts-ignore
+	return context.globalStoragePath;
 }
 
-export function getServerVersion() : string {
+export function getServerVersion(context: ExtensionContext) : string {
 	
-	const version = workspace.getConfiguration().get<string>('deluge.server.version');
-	//wont need the fallback as the version number is fixed and cant be updated
-	return version || '0.04-alpha';
+	const version : string = context.globalState.get('server_version');
+	//if(version == 'v0.04-alpha') return 'v0.03-alpha';
+	return version || 'v0.04-alpha';
 }
 
-export function updateServerVersion(version : string) : void {
-	workspace.getConfiguration().update('deluge.server.version', version);
+
+export function updateServerVersion(version : string, context: ExtensionContext) : Thenable<void> {
+	return context.globalState.update('server_version', version);
 }
 
 export function getRunTimeName() : string {

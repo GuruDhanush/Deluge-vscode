@@ -1,7 +1,7 @@
 import * as req from 'request-promise-native';
 import { promises as fs } from 'fs';
 import * as util from "./util";
-import { window, ProgressLocation } from 'vscode';
+import { window, ProgressLocation, ExtensionContext } from 'vscode';
 import * as path from 'path';
 
 
@@ -31,8 +31,7 @@ async function isPathExists(path: string): Promise<Boolean> {
 		await fs.readdir(path);
 		return true;
 	} catch (error) {
-		if (error.code === "ENOENT")
-			await fs.mkdir(path);
+		console.log('path doesnot exist!');
 	}
 	return false;
 }
@@ -62,7 +61,8 @@ async function DownloadPackage(
 	app: boolean,
 	appPath: string,
 	docs: boolean,
-	docsPath: string) {
+	docsPath: string,
+	context: ExtensionContext) {
 
 	if (!(runTime && app && docs)) {
 
@@ -73,7 +73,7 @@ async function DownloadPackage(
 				cancellable: false
 			},
 			async (progress, token) => {
-				let baseUrlVers = baseUrl +  util.getServerVersion() + '/';
+				let baseUrlVers = baseUrl + util.getServerVersion(context) + '/';
 				if (!runTime) {
 					progress.report({ message: 'Runtime' });
 					await DownloadFile(runTimePath, baseUrlVers + util.getRunTimeName());
@@ -105,26 +105,30 @@ async function DownloadPackage(
 }
 
 
-async function updatePackage(version: string) {
-	let homePath = path.join(util.getHomeDir(), version);
+async function updatePackage(version: string, context: ExtensionContext) {
+	let homePath = path.join(util.getHomeDir(context), version);
+	if (!await isPathExists(homePath)) {
+		await createPath(homePath);
+	}
+	await util.updateServerVersion(version, context);
 
-	await DownloadPackage(false, path.join(homePath, util.getRunTimeName()), 
+	await DownloadPackage(false, path.join(homePath, util.getRunTimeName()),
 		false, path.join(homePath, util.getParserName()),
-		false, path.join(homePath, util.getDocsName()));
+		false, path.join(homePath, util.getDocsName()), context);
 
 	window.showInformationMessage('Updated successfully');
 }
 
 
-export async function DependencyCheck() : Promise<void> {
+export async function DependencyCheck(context: ExtensionContext): Promise<void> {
 
 	let isNewlyDownloaded = false;
-	var homePath = util.getHomeDir();
+	var homePath = util.getHomeDir(context);
 	if (!await isPathExists(homePath)) {
 		await createPath(homePath);
 	}
 
-	var serverVersion = util.getServerVersion();
+	var serverVersion = util.getServerVersion(context);
 	homePath = path.join(homePath, serverVersion);
 	if (!await isPathExists(homePath)) {
 		isNewlyDownloaded = true;
@@ -132,7 +136,7 @@ export async function DependencyCheck() : Promise<void> {
 		let updServerVersion = await getLatestRelease();
 		if (serverVersion != updServerVersion) {
 			serverVersion = updServerVersion;
-			util.updateServerVersion(serverVersion);
+			await util.updateServerVersion(serverVersion, context);
 			homePath = homePath.substring(0, homePath.lastIndexOf('/')) + '/' + serverVersion;
 		}
 		await createPath(homePath);
@@ -156,21 +160,22 @@ export async function DependencyCheck() : Promise<void> {
 		isDocsAvailable = true;
 	}
 
-	await DownloadPackage(isRunTimeAvailable, runTimePath, isAppAvailable, appPath, isDocsAvailable, docsPath);
+	await DownloadPackage(isRunTimeAvailable, runTimePath, isAppAvailable, appPath, isDocsAvailable, docsPath,context);
 
 
 	if (!isNewlyDownloaded) {
-		let newServerVersion = await getLatestRelease();
-		if (util.getServerVersion() != newServerVersion) {
-			util.updateServerVersion(newServerVersion);
-			var userInput = await window.showInformationMessage(
-				'A new update for the server is Available. Do you want to update to ' + serverVersion,
-				'Update Now', 'Later');
-			
-				if(!userInput && userInput == 'Update Now') {
-					await updatePackage(newServerVersion);
-				}	
-		}
+		setTimeout(async function () {
+			let newServerVersion = await getLatestRelease();
+			if (util.getServerVersion(context) != newServerVersion) {
+				var userInput = await window.showInformationMessage(
+					'A new update for the server is Available. Do you want to update to ' + newServerVersion,
+					'Update Now', 'Later');
+
+				if (userInput && userInput == 'Update Now') {
+					await updatePackage(newServerVersion, context);
+				}
+			}
+		}, 10000);
 	}
 
 }

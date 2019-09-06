@@ -2,8 +2,9 @@
 
 An vscode language client for the [deluge lang](https://www.zoho.com/creator/deluge.html). It interfaces with the [Deluge lang server](https://github.com/GuruDhanush/Deluge-Language-Parser). 
 
-|This strictly runs deluge compatible with cliq only. |
-| --- |
+An Web editor is also available [here](https://gurudhanush.github.io/Deluge-Editor/).
+
+> The extension currently takes deluge code with `dg` file extension. 
 
 
 ## Motivation
@@ -63,6 +64,7 @@ Lang server doesnot detect errors in if\for statement test lines.
 ## Known Issues
 
 * DateTime is implemented as due to inconsistency in the docs and implementation. i.e. whether to take `'sometext'` as string or validate as datetime.
+* This strictly runs deluge compatible with cliq only
 
 
 

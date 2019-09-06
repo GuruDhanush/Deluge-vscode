@@ -31,7 +31,7 @@ function clientInit(context: ExtensionContext, exec: Executable) {
 				if (!client) {
 					var errorOpt = await window.showErrorMessage('Lang Server was never started!!', 'Ok', 'Start Server');
 					if (errorOpt && errorOpt === 'Start Server') {
-						DependencyCheck();
+						DependencyCheck(context);
 					}
 				}
 
@@ -78,8 +78,8 @@ function clientInit(context: ExtensionContext, exec: Executable) {
 	);
 
 	let executable: Executable = exec != null ? exec : {
-		command: path.join(util.getHomeDir(), util.getServerVersion(), util.getRunTimeName()),
-		args: [path.join(util.getHomeDir(), util.getServerVersion(), util.getParserName()),]
+		command: path.join(util.getHomeDir(context), util.getServerVersion(context), util.getRunTimeName()),
+		args: [path.join(util.getHomeDir(context), util.getServerVersion(context), util.getParserName()),]
 	};
 
 	let serverOptions: ServerOptions = {
@@ -140,8 +140,8 @@ function telemetryInit(context: ExtensionContext) {
 export async function activate(context: ExtensionContext) {
 
 	telemetryInit(context);
-	await DependencyCheck();
-	reporter.sendTelemetryEvent('Use Extension', { 'time': Date.UTC.toString() } );
+	await DependencyCheck(context);
+	reporter.sendTelemetryEvent('Use Extension', { 'time': Date() } );
 	//let ex : Executable = { command: "C:\\Users\\Guru\\AppData\\Roaming\\Pub\\Cache\\bin\\DelugeDartParser.bat" };
 	clientInit(context, null);
 }

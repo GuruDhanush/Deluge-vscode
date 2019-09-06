@@ -115,7 +115,7 @@
 					"scope": "machine",
 					"type": "string",
 					"description": "The lang server version to be used in the extension",
-					"default": "v0.04-alpha",
+					"default": "v0.03-alpha",
 					"readOnly": true
 				}
 			}
