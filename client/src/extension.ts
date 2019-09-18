@@ -118,7 +118,7 @@ function clientInit(context: ExtensionContext, exec: Executable) {
 			parserStatus.text = status ? "$(check)" : "$(x)";
 		});
 
-		client.sendRequest('custom/updateDocsLocation', { "folder": util.getHomeDir(context), "fileName": util.getDocsName() });
+		client.sendRequest('custom/updateDocsLocation', { "folder": path.join(util.getHomeDir(context), util.getServerVersion(context)), "fileName": util.getDocsName() });
 	});
 
 	client.start();
