@@ -118,6 +118,7 @@ function clientInit(context: ExtensionContext, exec: Executable) {
 			parserStatus.text = status ? "$(check)" : "$(x)";
 		});
 
+		client.sendRequest('custom/updateDocsLocation', { "folder": util.getHomeDir(context), "fileName": util.getDocsName() });
 	});
 
 	client.start();
@@ -141,7 +142,7 @@ export async function activate(context: ExtensionContext) {
 
 	telemetryInit(context);
 	await DependencyCheck(context);
-	reporter.sendTelemetryEvent('Use Extension', { 'time': Date() } );
+	reporter.sendTelemetryEvent('Use Extension');
 	//let ex : Executable = { command: "C:\\Users\\Guru\\AppData\\Roaming\\Pub\\Cache\\bin\\DelugeDartParser.bat" };
 	clientInit(context, null);
 }
@@ -181,5 +182,6 @@ export function deactivate(): Thenable<void> | undefined {
 	if (!client) {
 		return undefined;
 	}
+	reporter.sendTelemetryEvent('Stop Extension');
 	return client.stop();
 }

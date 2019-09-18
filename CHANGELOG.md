@@ -12,3 +12,7 @@
 
 - decoupled the lang server update with the extension
 - Added telemetry, disable by disabling the telemetry from vscode settings.
+
+## [0.04]
+
+- fixes the loading of docs. 
