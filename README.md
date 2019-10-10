@@ -9,9 +9,9 @@ An Web editor is also available [here](https://gurudhanush.github.io/Deluge-Edit
 
 ## Motivation
 
-One of the problems that I found during my time as intern in Zoho Cliq was the lack of ability to write code locally from an editor. I set out to solve the problem as I was free for past few months and this might also help in my job search. The first step is to write a parser to validate code and then provide language smarts. The [Deluge lang server](https://github.com/GuruDhanush/Deluge-Language-Parser) provides most of the features.
+One of the problems that I found during my time as intern in Zoho Cliq was the lack of ability to write code locally from an editor. I set out to solve the problem. The first step is to write a parser to validate code and then provide language smarts. The [Deluge lang server](https://github.com/GuruDhanush/Deluge-Language-Parser) provides most of the features.
 
-> Tip: Install the extension, select the language as dg in the stauts-bar and you are good to go
+> Tip: Install the extension, select the language as dg in the status-bar and you are good to go
 
 
 
@@ -58,7 +58,6 @@ Lang server doesnot detect errors in if\for statement test lines.
 
 ## Extension Settings
 
-* `deluge.homedir`: Homedir for parser and docs
 * `deluge.trace.server`: set to `verbose` to see the messages between client and server
 
 ## Known Issues
